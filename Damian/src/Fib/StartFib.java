@@ -1,7 +1,9 @@
+package Fib;
+
 import Fib.Fib;
 import java.util.Scanner;
 
-public class start {
+public class StartFib {
     public static void main(String[] args){
         Fib fib = new Fib();
         Scanner keyboard = new Scanner(System.in);
