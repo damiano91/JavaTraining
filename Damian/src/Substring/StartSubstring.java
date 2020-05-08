@@ -10,8 +10,7 @@ public class StartSubstring {
         s1 = keyboard.nextLine();
         System.out.println("Enter substring to find :");
         s2 = keyboard.nextLine();
-        Substring check = new Substring(s1,s2);
-
-        System.out.println(check.is_substringIn());
+        Substring checkStrings = new Substring();
+        System.out.println(checkStrings.is_substringIn(s1,s2));
     }
 }

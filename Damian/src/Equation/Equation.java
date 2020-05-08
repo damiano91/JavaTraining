@@ -6,16 +6,24 @@ public class Equation {
     float num1,num2;
     char symbol;
     public void readAndSplitEquation(String inputEq){
-        int index = 0;
-        for(int i=0; i<inputEq.length(); i++){
-            if(inputEq.charAt(i) == '-' || inputEq.charAt(i) == '+' || inputEq.charAt(i) == '/' ||inputEq.charAt(i) == '*') {
-                index = i;
-                break;
+        try{
+            int index = -1;
+            for(int i=0; i<inputEq.length(); i++){
+                if(inputEq.charAt(i) == '-' || inputEq.charAt(i) == '+' || inputEq.charAt(i) == '/' ||inputEq.charAt(i) == '*') {
+                    index = i;
+                    break;
+                }
             }
+            symbol = inputEq.charAt(index);
+            num1 = Float.parseFloat(inputEq.substring(0,index));
+            num2 = Float.parseFloat(inputEq.substring(index+1));
         }
-        symbol = inputEq.charAt(index);
-        num1 = Float.parseFloat(inputEq.substring(0,index));
-        num2 = Float.parseFloat(inputEq.substring(index+1));
+        catch(IndexOutOfBoundsException e){
+            System.out.println("Improper or lack of arithmetic operation");
+        }
+        catch (Exception e){
+            System.out.println(e);
+        }
 
     }
 

@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class BubbleSortInt {
-    public static int[] bubbleSort(int[] intTable){
+    public static void bubbleSort(int[] intTable){
         int temp;
         for(int i=1; i<intTable.length; i++){
             for(int j=i; j>= 1; j--){
@@ -17,7 +17,7 @@ public class BubbleSortInt {
                 else break;
             }
         }
-        return intTable;
+        //return intTable;
     }
 
 
@@ -32,7 +32,7 @@ public class BubbleSortInt {
             for(int i =0; i<size; i++) {
                 intsTable[i] = Integer.parseInt(reader.nextLine());
             }
-            intsTable = bubbleSort(intsTable);
+            bubbleSort(intsTable);
             for(int i =0; i<size; i++) System.out.println(intsTable[i]);
 
         }catch (FileNotFoundException e) {
