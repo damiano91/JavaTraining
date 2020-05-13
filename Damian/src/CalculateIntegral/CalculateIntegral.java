@@ -6,7 +6,6 @@ public class CalculateIntegral {
     public double calculate(double start, double end, double[] function){
         double result = 0;
         double funVal;
-        start += delta;
         while(start < end){
             funVal =0;
             for(int i = 0; i < function.length; i++){
