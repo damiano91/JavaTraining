@@ -4,8 +4,8 @@ public class Node {
     public String eng;
     public Node[] nextChar;
 
-    Node(){
+    Node(int size){
         this.eng = null;
-        nextChar = null;
+        nextChar = new Node[size];
     }
 }

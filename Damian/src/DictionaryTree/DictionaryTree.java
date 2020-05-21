@@ -7,31 +7,42 @@ public class DictionaryTree {
     DictionaryTree(){
         dictSize = 35;
         root = new Node[dictSize];
-        for(int i =0; i< dictSize;i++){
-            root[i] = new Node();
-        }
     }
     public void add(String pol, String eng){
         pol = pol.toLowerCase();
-        Node pointer = root[getIndexBasedOnChar(pol.charAt(0))];
+        int index = getIndexBasedOnChar(pol.charAt(0));
+        verifyAndCreateNode(root, index);
+        Node pointer = root[index];
         for(int i =1; i < pol.length();i++) {
-            if(pointer.nextChar == null){
-                pointer.nextChar = new Node[dictSize];
-                pointer.nextChar = populate(pointer);
-            }
-            pointer = pointer.nextChar[getIndexBasedOnChar(pol.charAt(i))];
+            index = getIndexBasedOnChar(pol.charAt(i));
+            verifyAndCreateNode(pointer.nextChar, index);
+            pointer = pointer.nextChar[index];
         }
         pointer.eng = eng;
     }
 
-    private Node[] populate(Node pointer){
-        Node[] temp = new Node[dictSize];
-        for(int i=0; i<dictSize; i++){
-            temp[i] = new Node();
+    private void verifyAndCreateNode(Node[] nodeTable, int index){
+        if(nodeTable[index] == null){
+            nodeTable[index] = new Node(dictSize);
         }
-        return temp;
     }
-    public int getIndexBasedOnChar(char c){
+
+    public String getEng(String pol){
+        pol = pol.toLowerCase();
+        int index = getIndexBasedOnChar(pol.charAt(0));
+        Node pointer = root[index];
+
+        for(int i =1; i < pol.length();i++) {
+            index = getIndexBasedOnChar(pol.charAt(i));
+            pointer = pointer.nextChar[index];
+            if(pointer == null) return "No word in dictionary!";
+        }
+        if(pointer == null || pointer.eng == null) return "No word in dictionary!";
+        else return pointer.eng;
+    }
+
+
+    private static int getIndexBasedOnChar(char c){
         switch (c){
             case 'a': return 0;
             case 'ą': return 1;
@@ -70,5 +81,12 @@ public class DictionaryTree {
             case 'ź': return 34;
             default: return -1;
         }
+    }
+    public static boolean verifyString(String input){
+        input = input.toLowerCase();
+        for(int i = 0; i < input.length(); i++){
+            if(getIndexBasedOnChar(input.charAt(i)) == -1) return false;
+        }
+        return true;
     }
 }

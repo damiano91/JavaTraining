@@ -15,19 +15,24 @@ public class StartDictionaryTree {
             while(reader.hasNext()){
                 pol = reader.nextLine();
                 eng = reader.nextLine();
-                dictionary.add(pol, eng);
+                if(dictionary.verifyString(pol) && dictionary.verifyString(eng)){
+                    dictionary.add(pol, eng);
+                }
             }
             reader = new Scanner(System.in);
-            System.out.println('c');
-            /*while(true){
-                System.out.println("Input polish word to check if exists in dictionary:");
+            while(true){
+                System.out.println("Input polish word to get english translation:");
                 toCheck = reader.next();
-                System.out.println(dictionary.get(toCheck));
-            }*/
+                if(dictionary.verifyString(toCheck)){
+                    System.out.println(dictionary.getEng(toCheck));
+                }
+                else System.out.println("Improper word");
+            }
 
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
     }
+
 }

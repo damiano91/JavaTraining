@@ -18,3 +18,5 @@ cztery
 four
 pięć
 five
+123
+imroperInput
