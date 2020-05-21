@@ -31,7 +31,7 @@ public class DictionaryTree {
         pol = pol.toLowerCase();
         int index = getIndexBasedOnChar(pol.charAt(0));
         Node pointer = root[index];
-
+        if(pointer == null) return "No word in dictionary!";
         for(int i =1; i < pol.length();i++) {
             index = getIndexBasedOnChar(pol.charAt(i));
             pointer = pointer.nextChar[index];
