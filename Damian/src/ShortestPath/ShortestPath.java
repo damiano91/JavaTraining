@@ -2,8 +2,8 @@ package ShortestPath;
 
 public class ShortestPath {
     Maze maze;
-    XYpoint[] previousSteps = new XYpoint[1000];
-    XYpoint[] nextSteps = new XYpoint[1000];
+    XYpoint[] previousSteps = new XYpoint[2];
+    XYpoint[] nextSteps = new XYpoint[5];
     int stepsDone=0;
 
     ShortestPath(String mazePath){
@@ -15,8 +15,7 @@ public class ShortestPath {
         while (previousSteps[0] != null){
             stepsDone++;
             if(getNextSteps() == 1){
-                stepsDone++;
-                return stepsDone;
+                return ++stepsDone;
             }
         }
         return -1;
@@ -66,9 +65,8 @@ public class ShortestPath {
             i++;
         }
         previousSteps = nextSteps;
-        nextSteps = new XYpoint[1000];
+        nextSteps = new XYpoint[nextStepCount * 4];
         return 0;
     }
-
 
 }
