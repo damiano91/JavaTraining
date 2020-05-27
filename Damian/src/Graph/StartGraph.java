@@ -16,7 +16,7 @@ public class StartGraph {
             Scanner reader = new Scanner(file);
             graph = new Graph();
             while(reader.hasNextLine()){
-                getInts(reader.nextLine(), values);
+                values = getInts(reader.nextLine());
                 graph.addEdge(values[0],values[1]);
             }
             graph.printNodesNotConnectedWith(1);
@@ -28,13 +28,11 @@ public class StartGraph {
     }
 
 
-    public static void getInts(String line, int[] values){
-        for(int i =0; i<line.length(); i++){
-            if(line.charAt(i) == ','){
-                values[0] = Integer.parseInt(line.substring(0,i));
-                values[1] = Integer.parseInt(line.substring(i+1,line.length()));
-                return;
-            }
-        }
+    public static int[] getInts(String line){
+        int[] values = new int[2];
+        String[] intsStr = line.split(",", 2);
+        values[0] = Integer.parseInt(intsStr[0]);
+        values[1] = Integer.parseInt(intsStr[1]);
+        return values;
     }
 }

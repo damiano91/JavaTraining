@@ -1,41 +1,43 @@
 package Graph;
 
+import java.util.List;
+
 public class Graph {
     Node[] nodes;
+    int nodesCount;
 
-    public void addEdge(int parent, int child){
-        addNodeIfNotExists(parent);
-        addNodeIfNotExists(child);
-        Node pointerChild = findNode(child);
-        Node pointerParent = findNode(parent);
-        pointerChild.setParent(pointerParent);
-        pointerParent.setChild(pointerChild);
+    Graph(){
+        nodes = new Node[2];
+        nodesCount = 0;
     }
 
-    private void addNodeIfNotExists(int val){
-        if(nodes == null){
-            nodes = new Node[1];
-            nodes[0] = new Node(val, 0);
+    public void addEdge(int parent, int child){
+        Node n1 = findNode(parent);
+        Node n2 = findNode(child);
+        if(n1 == null) n1 = addNode(parent);
+        if(n2 == null) n2 = addNode(child);
+        n2.setParent(n1);
+        n1.setChild(n2);
+    }
+    private Node addNode(int nodeVal){
+        if(nodesCount == nodes.length){
+            nodes = Node.extend(nodes);
         }
-        if(findNode(val) == null){
-            Node[] temp = new Node[nodes.length+1];
-            for(int i =0; i<nodes.length; i++) temp[i] = nodes[i];
-            temp[nodes.length] = new Node(val, nodes.length);
-            nodes = temp;
-        }
+        nodes[nodesCount] = new Node(nodeVal, nodesCount);
+        return nodes[nodesCount++];
     }
 
     private Node findNode(int val){
-        for(int i =0; i<nodes.length; i++){
+        for(int i =0; i<nodesCount; i++){
             if(nodes[i].value == val) return nodes[i];
         }
         return null;
     }
 
-    public int[] getIslands(Node startNode){
-        boolean[] visted = new boolean[nodes.length];
+    private int[] getIslands(Node startNode){
+        boolean[] visted = new boolean[nodesCount];
         int qIterator = 0, qSize=0;
-        Node[] queue = new Node[nodes.length];
+        Node[] queue = new Node[nodesCount];
         queue[qSize++] = startNode;
         visted[startNode.position] = true;
         while(qIterator < qSize){
@@ -68,7 +70,7 @@ public class Graph {
     private int searchUpwards(Node[] queue,int qIterator, int qSize, boolean[] visited){
         Node current = queue[qIterator];
         if(current.parents == null) return qSize;
-        for (int i = 0; i < current.parents.length; i++) {
+        for (int i = 0; i < current.parentsCount; i++) {
             if (visited[current.parents[i].position]) continue;
             else {
                 visited[current.parents[i].position] = true;
@@ -82,7 +84,7 @@ public class Graph {
     private int searchBackwards(Node[] queue, int qIterator, int qSize, boolean[] visited){
         Node current = queue[qIterator];
         if(current.childs == null) return qSize;
-        for(int i = 0; i<current.childs.length; i++){
+        for(int i = 0; i<current.childsCount; i++){
             if(visited[current.childs[i].position])continue;
             else{
                 visited[current.childs[i].position] = true;
