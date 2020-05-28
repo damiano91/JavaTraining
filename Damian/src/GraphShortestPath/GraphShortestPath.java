@@ -23,7 +23,7 @@ public class GraphShortestPath {
         if(nodesCount == nodes.length){
             nodes = extend(nodes);
         }
-        nodes[nodesCount] = new Node(nodeVal, nodesCount);
+        nodes[nodesCount] = new Node(nodeVal);
         return nodes[nodesCount++];
     }
     public static Node[] extend(Node[] table){
@@ -52,10 +52,9 @@ public class GraphShortestPath {
         queue.put(sourceNode);
         while (queue.qSize !=0){
             sourceNode = queue.getFirst();
-            if(!sourceNode.settled){
-                checkNeighbours(sourceNode, queue);
-                sourceNode.settled = true;
-            }
+            if(sourceNode == destNode) break; //when destination node reached, no need to evaluate cost for other nodes
+            checkNeighbours(sourceNode, queue);
+            sourceNode.settled = true;
         }
 
 
@@ -74,7 +73,7 @@ public class GraphShortestPath {
         for(int i =0; i< node.edgesCount; i++){
             temp = node.edges[i].getNeighbourOf(node);
             if(temp.settled) continue;
-            else if(temp.cost > node.cost + node.edges[i].cost){
+            if(temp.cost > node.cost + node.edges[i].cost){
                 temp.cost = node.cost + node.edges[i].cost;
                 queue.put(temp);
             }

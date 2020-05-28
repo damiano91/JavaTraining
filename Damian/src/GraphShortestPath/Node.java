@@ -4,13 +4,11 @@ public class Node {
     Edge[] edges;
     int edgesCount;
     int value;
-    int position;
 
     double cost;
     boolean settled;
 
-    Node(int val, int pos){
-        position = pos;
+    Node(int val){
         value = val;
         edges = new Edge[2];
         edgesCount = 0;
