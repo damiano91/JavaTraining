@@ -1,7 +1,6 @@
-package Image;
+package MyImage;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,15 +8,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 
-public class Image {
+public class MyImage {
     BufferedImage img;
     BufferedImage recreatedImg;
     String txtPatch;
     int width, height;
 
-    Image(String urlPatch){
+    MyImage(String urlPatch){
         img = null;
-        txtPatch = "./Damian/resources/Image/txtImage.txt";
+        txtPatch = "./Damian/resources/MyImage/txtImage.txt";
         try {
             URL url = new URL(urlPatch);
             img = ImageIO.read(url);
@@ -29,17 +28,17 @@ public class Image {
     }
 
     public void createTxt(){
-        Color color;
         byte[] myBytes = new byte[4];
+        int pixelVal;
         try {
             FileOutputStream imgTxt = new FileOutputStream(txtPatch);
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
-                    color = new Color(img.getRGB(x, y), true);
-                    myBytes[0] = (byte) color.getAlpha();
-                    myBytes[1] = (byte) color.getRed();
-                    myBytes[2] = (byte) color.getGreen();
-                    myBytes[3] = (byte) color.getBlue();
+                    pixelVal = img.getRGB(x, y);
+                    myBytes[0] = (byte) ((pixelVal >> 24) & 0xff);  //alpha
+                    myBytes[1] = (byte) ((pixelVal >> 16) & 0xff);  //red
+                    myBytes[2] = (byte) ((pixelVal >> 8) & 0xff);   //green
+                    myBytes[3] = (byte) ((pixelVal) & 0xff);        //blue
                     imgTxt.write(myBytes);
                 }
             }
@@ -49,24 +48,20 @@ public class Image {
     }
 
     public void makeGreyscale(){
-        Color color;
         byte[] bytes;
-        int[] argb;
-        int greyScaleVal;
+        int pixelVal;
         recreatedImg = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
         try{
             FileInputStream fis = new FileInputStream(txtPatch);
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
                     bytes = fis.readNBytes(4);
-                    argb = getARGBinGreyscale(bytes);
-                    greyScaleVal = argb[1] + argb[2] + argb[3];
-                    color = new Color(greyScaleVal,greyScaleVal,greyScaleVal, argb[0]);
-                    recreatedImg.setRGB(x,y,color.getRGB());
+                    pixelVal = composePixelVal(bytes);
+                    recreatedImg.setRGB(x,y,pixelVal);
                 }
             }
 
-            File ouptut = new File("./Damian/resources/Image/grayscale.jpg");
+            File ouptut = new File("./Damian/resources/MyImage/grayscale.jpg");
             ImageIO.write(recreatedImg, "jpg", ouptut);
         }
         catch (IOException e){
@@ -74,13 +69,20 @@ public class Image {
 
     }
 
-    private int[] getARGBinGreyscale(byte[] bytes){
+    private int composePixelVal(byte[] bytes){
         int[] argb = new int[4];
-        argb[0] = (int) bytes[1] & 0xFF;
-        argb[1] = (int)(((int) bytes[1] & 0xFF)* 0.299);
-        argb[2] = (int)(((int) bytes[2] & 0xFF)* 0.587);
-        argb[3] = (int)(((int) bytes[3] & 0xFF)* 0.114);
-        return argb;
+        int pixelVal, greyscaleVal;
+        argb[0] = (int) bytes[0] & 0xFF;       //alpha
+        argb[1] = ((int) bytes[1] & 0xFF);     //red
+        argb[2] = ((int) bytes[2] & 0xFF);     //green
+        argb[3] = ((int) bytes[3] & 0xFF);     //blue
+        greyscaleVal = (argb[1] + argb[2] + argb[3])/3;
+        pixelVal = argb[0];
+        for(int i =0; i< 3; i++){
+            pixelVal <<= 8;
+            pixelVal += greyscaleVal;
+        }
+        return pixelVal;
     }
 }
 
