@@ -51,6 +51,7 @@ public class Image {
     public void makeGreyscale(){
         Color color;
         byte[] bytes;
+        int[] argb;
         int greyScaleVal;
         recreatedImg = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
         try{
@@ -58,8 +59,9 @@ public class Image {
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
                     bytes = fis.readNBytes(4);
-                    greyScaleVal = getARGB(bytes);
-                    color = new Color(greyScaleVal,greyScaleVal,greyScaleVal);
+                    argb = getARGBinGreyscale(bytes);
+                    greyScaleVal = argb[1] + argb[2] + argb[3];
+                    color = new Color(greyScaleVal,greyScaleVal,greyScaleVal, argb[0]);
                     recreatedImg.setRGB(x,y,color.getRGB());
                 }
             }
@@ -72,13 +74,13 @@ public class Image {
 
     }
 
-    private int getARGB(byte[] bytes){
+    private int[] getARGBinGreyscale(byte[] bytes){
         int[] argb = new int[4];
+        argb[0] = (int) bytes[1] & 0xFF;
         argb[1] = (int)(((int) bytes[1] & 0xFF)* 0.299);
         argb[2] = (int)(((int) bytes[2] & 0xFF)* 0.587);
         argb[3] = (int)(((int) bytes[3] & 0xFF)* 0.114);
-        argb[0] = argb[1] + argb[2] + argb[3];
-        return argb[0];
+        return argb;
     }
 }
 
