@@ -1,9 +1,11 @@
 package GraphShortestPath;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+
 public class Queue {
     Node[] nodes;
     int qSize;
-    int qIterator;
 
     Queue(){
         nodes = new Node[2];
@@ -18,19 +20,26 @@ public class Queue {
             int qIndex = findHigherCostNode(node.cost);
             System.arraycopy(nodes,qIndex,nodes,qIndex+1,qSize-qIndex);
             nodes[qIndex] = node;
+            for(int i = qIndex+1; i<qSize; i++){
+                if(nodes[i] == node) removeNode(i);
+            }
         }
         qSize++;
     }
 
     Node getFirst(){
         Node temp = nodes[0];
-        removeFirstElement();
+        removeNode(0);
         return temp;
     }
+    void removeNode(int index){
+        if(index == qSize) nodes[index] = null;
+        else{
+            System.arraycopy(nodes,index+1,nodes,index,qSize-index);
+            nodes[qSize] = null;
+            qSize--;
+        }
 
-    void removeFirstElement(){
-        if(nodes[0] == null)return;
-        System.arraycopy(nodes,1,nodes,0,--qSize);
     }
 
     int findHigherCostNode(double nodeCost){
