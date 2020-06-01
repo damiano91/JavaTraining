@@ -11,8 +11,10 @@ import java.net.URL;
 public class MyImage {
     BufferedImage img;
     BufferedImage recreatedImg;
+    BufferedImage greysScaleWithAverageFilter;
     String txtPatch;
     int width, height;
+    int diameter;
 
     MyImage(String urlPatch){
         img = null;
@@ -84,5 +86,64 @@ public class MyImage {
         }
         return pixelVal;
     }
+
+    public void averageFilter(int diameter){
+        greysScaleWithAverageFilter = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+        this.diameter = diameter;
+        averageFilterWithoutBoundaries();
+        //calculateBoundries();
+    }
+
+    private void calculateBoundries() {
+        int allNeighboursVal;
+        int x;
+        int y;
+    }
+
+    private void averageFilterWithoutBoundaries(){
+        int allNeighboursVal=0;
+        int x;
+        int y;
+        for(x =diameter; x< width -diameter;x++){
+            y = diameter;
+            allNeighboursVal = calculateNeighbours(x,y);
+            setPixelVal(allNeighboursVal,x,y);
+            for (y = diameter+1; y< height - diameter; y++){
+                allNeighboursVal = calculateByDiff(x,y,allNeighboursVal);
+                setPixelVal(allNeighboursVal,x,y);
+            }
+        }
+    }
+    private int calculateNeighbours(int xIn, int yIn){
+        int val =0;
+        for(int x = xIn - diameter ; x<= xIn + diameter; x++){
+            for(int y = yIn -diameter; y<= yIn +diameter;y++){
+                val += (recreatedImg.getRGB(x,y) & 0xff);
+            }
+        }
+        return val;
+    }
+    private int calculateByDiff(int xIn, int yIn, int val){
+        for(int x= xIn-diameter; x<= xIn + diameter; x++)val -= (recreatedImg.getRGB(x,yIn-diameter-1) & 0xff);
+        for(int x= xIn-diameter; x<= xIn + diameter; x++)val += (recreatedImg.getRGB(x,yIn+diameter) & 0xff);
+        return val;
+    }
+
+    private void setPixelVal(int val, int x, int y){
+        int pixelVal=255; //alpha to max
+        int average = getAverage(val);
+        pixelVal <<= 8;
+        for(int i =0; i< 3; i++){
+            pixelVal <<= 8;
+            pixelVal += average;
+        }
+        greysScaleWithAverageFilter.setRGB(x,y, pixelVal);
+
+    }
+
+    private int getAverage(int val) {
+        return  val/((diameter*2+1) * (diameter*2+1));
+    }
+
 }
 
