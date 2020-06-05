@@ -12,6 +12,7 @@ public class MyImage {
     BufferedImage img;
     BufferedImage recreatedImg;
     BufferedImage greysScaleWithAverageFilter;
+    BufferedImage colorWithAverageFilter;
     String txtPatch;
     int width, height;
     int diameter;
@@ -26,6 +27,7 @@ public class MyImage {
             height = img.getHeight();
         }
         catch (IOException e) {
+            System.out.println(e);
         }
     }
 
@@ -46,6 +48,7 @@ public class MyImage {
             }
         }
         catch (IOException e){
+            System.out.println(e);
         }
     }
 
@@ -67,6 +70,7 @@ public class MyImage {
             ImageIO.write(recreatedImg, "jpg", ouptut);
         }
         catch (IOException e){
+            System.out.println(e);
         }
 
     }
@@ -91,13 +95,47 @@ public class MyImage {
         greysScaleWithAverageFilter = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
         this.diameter = diameter;
         averageFilterWithoutBoundaries();
-        //calculateBoundries();
+        calculateBoundries();
     }
 
     private void calculateBoundries() {
-        int allNeighboursVal;
+        int boundryVal;
         int x;
         int y;
+        for(x=0; x<width;x++){
+            for(y=0; y<diameter;y++){
+                boundryVal = getBoundryVal(x,y);
+                setPixelVal(boundryVal,x,y);
+                boundryVal = getBoundryVal(x,height-y-1);
+                setPixelVal(boundryVal,x,height-y-1);
+            }
+        }
+        for(y=diameter; y<height-diameter;y++){
+            for(x=0; x<diameter;x++){
+                boundryVal = getBoundryVal(x,y);
+                setPixelVal(boundryVal,x,y);
+                boundryVal = getBoundryVal(width-x -1,y);
+                setPixelVal(boundryVal,width-x -1,y);
+            }
+        }
+    }
+
+    private int getBoundryVal(int xIn, int yIn){
+        int val =0;
+        int xB, yB;
+        for(int x = xIn - diameter ; x<= xIn + diameter; x++){
+            for(int y = yIn -diameter; y<= yIn +diameter;y++){
+                if(x<0) xB=0;
+                else if(x>=width) xB= width-1;
+                else xB =x;
+                if(y<0) yB=0;
+                else if(y>= height) yB= height-1;
+                else yB = y;
+                val += (recreatedImg.getRGB(xB,yB) & 0xff);
+            }
+        }
+
+        return val;
     }
 
     private void averageFilterWithoutBoundaries(){
@@ -108,7 +146,7 @@ public class MyImage {
             y = diameter;
             allNeighboursVal = calculateNeighbours(x,y);
             setPixelVal(allNeighboursVal,x,y);
-            for (y = diameter+1; y< height - diameter; y++){
+            for (y++; y< height - diameter; y++){
                 allNeighboursVal = calculateByDiff(x,y,allNeighboursVal);
                 setPixelVal(allNeighboursVal,x,y);
             }
@@ -145,5 +183,72 @@ public class MyImage {
         return  val/((diameter*2+1) * (diameter*2+1));
     }
 
+    public void averageFilterColor(int diameter){
+        colorWithAverageFilter = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        this.diameter = diameter;
+        averageFilterWithoutBoundariesColor();
+
+    }
+
+    private void averageFilterWithoutBoundariesColor(){
+        int[] allNeighboursVal = new int[4];
+        int x;
+        int y;
+        for(x =diameter; x< width -diameter;x++){
+            y = diameter;
+            allNeighboursVal = calculateNeighboursColor(x,y);
+            setPixelValColor(allNeighboursVal,x,y);
+            for (y++; y< height - diameter; y++){
+                allNeighboursVal = calculateByDiffColor(x,y,allNeighboursVal);
+                setPixelValColor(allNeighboursVal,x,y);
+            }
+        }
+    }
+    private int[] calculateNeighboursColor(int xIn, int yIn){
+        int[] val = new int[4];
+        for(int x = xIn - diameter ; x<= xIn + diameter; x++){
+            for(int y = yIn -diameter; y<= yIn +diameter;y++){
+                val[0] += (img.getRGB(x,y)>>24 & 0xff);
+                val[1] += (img.getRGB(x,y)>>16 & 0xff);
+                val[2] += (img.getRGB(x,y)>>8 & 0xff);
+                val[3] += (img.getRGB(x,y) & 0xff);
+            }
+        }
+        return val;
+    }
+    private void setPixelValColor(int[] val, int x, int y){
+        int pixelVal = 0;
+        int average;
+        average=getAverage(val[0]);
+        pixelVal += average;
+        for(int i =1; i< 4; i++){
+            pixelVal <<= 8;
+            average=getAverage(val[i]);
+            pixelVal += average;
+        }
+        colorWithAverageFilter.setRGB(x,y, pixelVal);
+
+    }
+
+    private int[] calculateByDiffColor(int xIn, int yIn, int[] val){
+        for(int x= xIn-diameter; x<= xIn + diameter; x++){
+            val[0] -= (img.getRGB(x,yIn-diameter-1)>>24 & 0xff);
+            val[1] -= (img.getRGB(x,yIn-diameter-1)>>16 & 0xff);
+            val[2] -= (img.getRGB(x,yIn-diameter-1)>>8 & 0xff);
+            val[3] -= (img.getRGB(x,yIn-diameter-1) & 0xff);
+        }
+        for(int x= xIn-diameter; x<= xIn + diameter; x++){
+            val[0] += (img.getRGB(x,yIn+diameter)>>24 & 0xff);
+            val[1] += (img.getRGB(x,yIn+diameter)>>16 & 0xff);
+            val[2] += (img.getRGB(x,yIn+diameter)>>8 & 0xff);
+            val[3]+= (img.getRGB(x,yIn+diameter) & 0xff);
+        }
+        return val;
+    }
+
 }
 
+/*myBytes[0] = (byte) ((pixelVal >> 24) & 0xff);  //alpha
+myBytes[1] = (byte) ((pixelVal >> 16) & 0xff);  //red
+myBytes[2] = (byte) ((pixelVal >> 8) & 0xff);   //green
+myBytes[3] = (byte) ((pixelVal) & 0xff);        //blue*/
