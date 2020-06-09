@@ -247,8 +247,3 @@ public class MyImage {
     }
 
 }
-
-/*myBytes[0] = (byte) ((pixelVal >> 24) & 0xff);  //alpha
-myBytes[1] = (byte) ((pixelVal >> 16) & 0xff);  //red
-myBytes[2] = (byte) ((pixelVal >> 8) & 0xff);   //green
-myBytes[3] = (byte) ((pixelVal) & 0xff);        //blue*/
