@@ -9,10 +9,13 @@ public class GaussFilter {
     int diameter;
     int gaussMatrixSize;
     int gaussMatrixCount;
+    int width, height;
 
     GaussFilter(int diameter, BufferedImage img){
         this.imgOriginal = img;
         this.diameter = diameter;
+        width = imgOriginal.getWidth();
+        height = imgOriginal.getHeight();
         imgWithGaussFilter = new BufferedImage(imgOriginal.getWidth(), imgOriginal.getHeight(), BufferedImage.TYPE_INT_ARGB);
         gaussMatrixSize = diameter*2+1;
         gaussMatrix = new int[gaussMatrixSize][gaussMatrixSize];
@@ -22,6 +25,7 @@ public class GaussFilter {
     public BufferedImage getImgWithGaussFilter(){
         assembleMatrix();
         gaussFilterWithoutBoundaries();
+        calculateBoundries();
         return imgWithGaussFilter;
     }
 
@@ -56,8 +60,8 @@ public class GaussFilter {
         int[] allNeighboursVal = new int[4];
         int x;
         int y;
-        for(x =diameter; x< imgOriginal.getWidth() -diameter;x++){
-            for (y=diameter; y< imgOriginal.getHeight() - diameter; y++){
+        for(x =diameter; x< width -diameter;x++){
+            for (y=diameter; y< height - diameter; y++){
                 allNeighboursVal = calculateNeighboursColor(x,y);
                 setPixelValColor(allNeighboursVal,x,y);
             }
@@ -86,6 +90,47 @@ public class GaussFilter {
         }
         imgWithGaussFilter.setRGB(x,y, pixelVal);
     }
+    private void calculateBoundries() {
+        int[] boundryVal;
+        int x;
+        int y;
+        for(x=0; x<width;x++){
+            for(y=0; y<diameter;y++){
+                boundryVal = getBoundryVal(x,y);
+                setPixelValColor(boundryVal,x,y);
+                boundryVal = getBoundryVal(x,height-y-1);
+                setPixelValColor(boundryVal,x,height-y-1);
+            }
+        }
+        for(y=diameter; y<height-diameter;y++){
+            for(x=0; x<diameter;x++){
+                boundryVal = getBoundryVal(x,y);
+                setPixelValColor(boundryVal,x,y);
+                boundryVal = getBoundryVal(width-x -1,y);
+                setPixelValColor(boundryVal,width-x -1,y);
+            }
+        }
+    }
 
+    private int[] getBoundryVal(int xIn, int yIn){
+        int val[] = new int[4];
+        int xB, yB;
+        for(int x = xIn - diameter ; x<= xIn + diameter; x++){
+            for(int y = yIn -diameter; y<= yIn +diameter;y++){
+                if(x<0) xB=0;
+                else if(x>=width) xB= width-1;
+                else xB =x;
+                if(y<0) yB=0;
+                else if(y>= height) yB= height-1;
+                else yB = y;
+                val[0] += (imgOriginal.getRGB(xB, yB) >> 24 & 0xff) * gaussMatrix[xIn + diameter - x][yIn + diameter - y];
+                val[1] += (imgOriginal.getRGB(xB, yB) >> 16 & 0xff) * gaussMatrix[xIn + diameter - x][yIn + diameter - y];
+                val[2] += (imgOriginal.getRGB(xB, yB) >> 8 & 0xff) * gaussMatrix[xIn + diameter - x][yIn + diameter - y];
+                val[3] += (imgOriginal.getRGB(xB, yB) & 0xff) * gaussMatrix[xIn + diameter - x][yIn + diameter - y];
+            }
+        }
+        for(int i=0; i<val.length; i++) val[i] /=gaussMatrixCount;
+        return val;
+    }
 
 }

@@ -99,23 +99,23 @@ public class MyImage {
     }
 
     private void calculateBoundries() {
-        int boundryVal;
+        int boundaryVal;
         int x;
         int y;
         for(x=0; x<width;x++){
             for(y=0; y<diameter;y++){
-                boundryVal = getBoundryVal(x,y);
-                setPixelVal(boundryVal,x,y);
-                boundryVal = getBoundryVal(x,height-y-1);
-                setPixelVal(boundryVal,x,height-y-1);
+                boundaryVal = getBoundryVal(x,y);
+                setPixelVal(boundaryVal,x,y);
+                boundaryVal = getBoundryVal(x,height-y-1);
+                setPixelVal(boundaryVal,x,height-y-1);
             }
         }
         for(y=diameter; y<height-diameter;y++){
             for(x=0; x<diameter;x++){
-                boundryVal = getBoundryVal(x,y);
-                setPixelVal(boundryVal,x,y);
-                boundryVal = getBoundryVal(width-x -1,y);
-                setPixelVal(boundryVal,width-x -1,y);
+                boundaryVal = getBoundryVal(x,y);
+                setPixelVal(boundaryVal,x,y);
+                boundaryVal = getBoundryVal(width-x -1,y);
+                setPixelVal(boundaryVal,width-x -1,y);
             }
         }
     }
