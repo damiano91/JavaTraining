@@ -7,7 +7,7 @@ public class ShowImage extends Panel {
     BufferedImage image;
     int x, y;
 
-    ShowImage(BufferedImage img, int x, int y){
+    public ShowImage(BufferedImage img, int x, int y){
         this.x = x;
         this.y = y;
         image = img;
