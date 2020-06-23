@@ -15,26 +15,24 @@ public class SobelFilter {
         height = img.getHeight();
         sobelValMatrix = new int [width][height];
         sobelImg = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-        makeSobel();
+        makeSobelMatrix();
+        createImg();
     }
 
     public BufferedImage getImage(){
         return sobelImg;
     }
 
-    private void makeSobel(){
-        int sobelVal;
+    private void makeSobelMatrix(){
         for(int x =1; x< width-1; x++){
             for(int y = 1; y< height -1; y++){
-                sobelVal = getSobelVal(x,y);
-                sobelValMatrix[x][y] = sobelVal;
+                sobelValMatrix[x][y] = getSobelVal(x,y);
             }
         }
-        createImg();
     }
     private void createImg(){
-        calculateThreshodlBasedOnMaxVal();
-        //calculateThresholdBasedOnAvgIlluminance();
+        //calculateThreshodlBasedOnMaxVal();
+        calculateThresholdBasedOnAvgIlluminance();
         for(int x =0; x< width; x++){
             for(int y = 0; y< height; y++){
                 if(sobelValMatrix[x][y] > threshold) sobelValMatrix[x][y]=255;
@@ -62,7 +60,7 @@ public class SobelFilter {
     }
 
     private void calculateThreshodlBasedOnMaxVal(){
-        float modifier = (float)0.5;
+        float modifier = 0.5f;
         int max=0;
         for(int i =0; i< width;i++){
             for(int j=0; j<height;j++){
@@ -73,7 +71,7 @@ public class SobelFilter {
     }
 
     private void calculateThresholdBasedOnAvgIlluminance(){
-        float modifier = (float) 3.0;
+        float modifier = 2.0f;
         int sum=0;
         for(int i =0; i< width;i++){
             for(int j=0; j<height;j++){

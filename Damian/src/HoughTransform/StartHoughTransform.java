@@ -8,11 +8,13 @@ public class StartHoughTransform {
     public static void main(String[] args) {
         //String url = "http://analizaobrazu.x25.pl/uploads/ckeditor/pictures/367/content_3.png";
         //String url = "https://i.wpimg.pl/730x0/m.komorkomania.pl/vivo-nex-3s-5g-10-1d043db8c90500.jpg";
-        String url = "https://bi.im-g.pl/im/ba/a9/13/z20618938MS,Figura.jpg";
+        //String url = "https://bi.im-g.pl/im/ba/a9/13/z20618938MS,Figura.jpg";
+        //String url = "https://www.gimp.org/tutorials/Straight_Line/straight_line_example.png";
+        String url = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSk8Z6BUlysKf6kbMawNVcLB-JvMOiofY2Deg&usqp=CAU";
         HoughTransform houghImage = new HoughTransform(url);
         houghImage.makeHughTransform();
-        houghImage.print2MostProminentPoints();
-
+        houghImage.print2mostProminentLines();
+        //houghImage.print2MostProminentPoints();
 
         JFrame frame = new JFrame("Display image");
         JPanel mainPanel = new JPanel();

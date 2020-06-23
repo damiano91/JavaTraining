@@ -29,16 +29,17 @@ public class HoughTransform {
         catch (IOException e) {
             System.out.println(e);
         }
+        greyScaleImg = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
         makeGreyscale();
         sobelFilter = new SobelFilter(greyScaleImg);
         sobelImg = sobelFilter.getImage();
-        thetaMax = 360;
-        diagonal = (int) Math.sqrt(width*width + height*height);
+        thetaMax = 180;
+        diagonal = (int) Math.sqrt(width*width + height*height)*2;
+        hughImg = new BufferedImage(diagonal,thetaMax,BufferedImage.TYPE_BYTE_GRAY);
         houghMatrix = new int[thetaMax][diagonal];
     }
 
     private void makeGreyscale(){
-        greyScaleImg = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
         int point, avg;
         int[] argb = new int[4];
         for(int x=0;x<width;x++){
@@ -64,14 +65,17 @@ public class HoughTransform {
     }
 
     public void makeHughTransform(){
-        hughImg = new BufferedImage(diagonal,thetaMax,BufferedImage.TYPE_BYTE_GRAY);
         for(int x=0; x< width;x++) {
             for (int y = 0; y < height; y++) {
-                if((sobelImg.getRGB(x,y) & 0xff) == 255){
+                if(sobelFilter.sobelValMatrix[x][y] == 255){
                     addPoints(x,y);
                 }
             }
         }
+        printHoughMatrix();
+    }
+
+    private void printHoughMatrix(){
         int max =0;
         for(int x=0; x< thetaMax;x++) {
             for (int y = 0; y < diagonal; y++) {
@@ -83,49 +87,65 @@ public class HoughTransform {
                 hughImg.setRGB(y,x,HoughTransform.composeGreyPixel((int)(((float) (houghMatrix[x][y])/max) * 255)));
             }
         }
-    }
 
+    }
     private void addPoints(int x, int y){
         int r=0;
         for(int theta=0; theta<thetaMax;theta++){
-            r = (int)(x*Math.cos(Math.toRadians(theta)) + y*Math.sin(Math.toRadians(theta)));
-            if(r>0)houghMatrix[theta][r]++;
-            else houghMatrix[theta][r*(-1)]++;
-
+            r = (int)(x*Math.cos(Math.toRadians(theta)) + y*Math.sin(Math.toRadians(theta))) + diagonal/2;
+            houghMatrix[theta][r]++;
         }
-    }
-
-    public void print2MostProminentPoints(){
-        int[] max1, max2;
-        max1 = new int[3];
-        max2 = new int[3];
-        for(int x=0; x< thetaMax;x++) {
-            for (int y = 0; y < diagonal; y++) {
-                if(houghMatrix[x][y] > max1[2]){
-                    System.arraycopy(max1,0,max2,0,3);
-                    max1[0] = x;
-                    max1[1] = y;
-                    max1[2] = houghMatrix[x][y];
-                }
-                else if (houghMatrix[x][y] > max2[2]){
-                    max2[0] = x;
-                    max2[1] = y;
-                    max2[2] = houghMatrix[x][y];
-
-                }
-            }
-        }
-        drawLine(max1[0], max1[1]);
-        drawLine(max2[0], max2[1]);
-        System.out.println(max1[0] + " " + (max1[1]));
-        System.out.println(max2[0] + " " + (max2[1]));
     }
 
     private void drawLine(int mtheta, int mdiagonal){
         int y;
+        int normalizedDiagonal =mdiagonal -diagonal/2;
         for(int x = 0; x< width;x++){
-            y = (int) ((mdiagonal - x*Math.cos(Math.toRadians(mtheta)))/ Math.sin(Math.toRadians(mtheta)));
+            y = (int) ((normalizedDiagonal - x*Math.cos(Math.toRadians(mtheta)))/ Math.sin(Math.toRadians(mtheta)));
             if(y<height && y >0) img.setRGB(x,y,255<<16);
         }
+    }
+
+    public void print2mostProminentLines(){
+        XYPoints maximaPoints = findLocalMaxima();
+        int[] max1, max2;
+        max1 = new int[3];
+        max2 = new int[3];
+        for(int i = 0; i<maximaPoints.count; i++){
+            if(houghMatrix[maximaPoints.x[i]][maximaPoints.y[i]] > max1[2]){
+                System.arraycopy(max1,0,max2,0,3);
+                max1[0] = maximaPoints.x[i];
+                max1[1] = maximaPoints.y[i];
+                max1[2] = houghMatrix[maximaPoints.x[i]][maximaPoints.y[i]];
+            }
+            else if(houghMatrix[maximaPoints.x[i]][maximaPoints.y[i]] > max2[2]) {
+                max2[0] = maximaPoints.x[i];
+                max2[1] = maximaPoints.y[i];
+                max2[2] = houghMatrix[maximaPoints.x[i]][maximaPoints.y[i]];
+            }
+        }
+        drawLine(max1[0], max1[1]);
+        drawLine(max2[0], max2[1]);
+        System.out.println(max1[0] + " " + (max1[1] - diagonal/2));
+        System.out.println(max2[0] + " " + (max2[1] - diagonal/2));
+    }
+
+    private XYPoints findLocalMaxima(){
+        XYPoints maxXYPoints = new XYPoints();
+        for(int x =1; x<houghMatrix.length-1; x++){
+            for(int y =1; y< houghMatrix[0].length-1; y++){
+                if(houghMatrix[x][y] > houghMatrix[x-1][y-1]
+                && houghMatrix[x][y] > houghMatrix[x-1][y]
+                && houghMatrix[x][y] > houghMatrix[x][y-1]
+                && houghMatrix[x][y] > houghMatrix[x+1][y-1]
+                && houghMatrix[x][y] > houghMatrix[x-1][y+1]
+                && houghMatrix[x][y] > houghMatrix[x+1][y+1]
+                && houghMatrix[x][y] > houghMatrix[x+1][y]
+                && houghMatrix[x][y] > houghMatrix[x][y+1]){
+                    maxXYPoints.addPoint(x,y);
+                }
+            }
+        }
+        return maxXYPoints;
     }
 }
